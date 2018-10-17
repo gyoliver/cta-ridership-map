@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+        <title>Intro to Layers and LayerViews</title>
+        <link rel="stylesheet" href="https://js.arcgis.com/4.8/esri/css/main.css">
+        <style>
+            html, body, #viewDiv {
+                padding: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+            }
+            
+            #streetslayer {
+                top: 100;
+                left: 100;
+            }
+        </style>
+        <script src="https://js.arcgis.com/4.9/"></script>
+        <script type="text/plain" id="station-name-crosswalk">
+          // Arcade expression used to replace the LONGNAME (CTA internal station name) value with those used on maps that users know.
+          var stationNameCrosswalk = Dictionary("35-Bronzeville-IIT", "35th-Bronzeville-IIT", "Granville", "Granville", "Wellington", "Wellington", "Dempster-Skokie", "Dempster-Skokie", "Washington/Dearborn", "Washington", "Western-Ravenswood", "Western", "Addison-Ravenswood", "Addison-Ravenswood", "Damen-Ravenswood", "Damen", "LaSalle/Van Buren", "LaSalle/Van Buren", "Harrison", "Harrison", "Oak Park-Lake", "Oak Park", "Ashland-Lake", "Ashland", "Grand/Milwaukee", "Grand", "Damen/Milwaukee", "Damen", "Belmont-O'Hare", "Belmont", "Jefferson Park", "Jefferson Park", "47th-Dan Ryan", "47th", "Cottage Grove", "Cottage Grove", "Halsted/63rd", "Halsted", "47th-South Elevated", "47th", "Loyola", "Loyola", "Berwyn", "Berwyn", "Chicago/State", "Chicago", "Sedgwick", "Sedgwick", "Pulaski-Congress", "Pulaski", "Harlem-Congress", "Harlem", "Kedzie-Homan", "Kedzie-Homan", "Monroe/State", "Monroe", "Ridgeland", "Ridgeland", "Western/Milwaukee", "Western", "Garfield-South Elevated", "Garfield", "35th/Archer", "35th/Archer", "Kedzie-Douglas", "Kedzie", "UIC-Halsted", "UIC-Halsted", "LaSalle", "LaSalle", "Armitage", "Armitage", "Pulaski-Lake", "Pulaski", "Conservatory-Central Park", "Conservatory-Central Park Drive", "Addison-North Main", "Addison", "Jackson/Dearborn", "Jackson", "South Boulevard", "South Boulevard", "Bryn Mawr", "Bryn Mawr", "Washington/Wells", "Washington", "Adams/Wabash", "Adams/Wabash", "Harlem-Lake", "Harlem/Lake", "95th/Dan Ryan", "95th/Dan Ryan", "Garfield-Dan Ryan", "Garfield", "43rd", "43rd", "Irving Park-O'Hare", "Irving Park", "Monroe/Dearborn", "Monroe", "Kimball", "Kimball", "Kedzie-Ravenswood", "Kedzie", "Illinois Medical District", "Illinois Medical District", "Austin-Congress", "Austin", "Logan Square", "Logan Square", "51st", "51st", "Ashland-Midway", "Ashland", "18th", "18th", "Western-Douglas", "Western", "Davis", "Davis", "Cumberland", "Cumberland", "79th", "79th", "O'Hare Airport", "O'Hare", "Belmont-North Main", "Belmont", "Howard", "Howard", "Laramie", "Laramie", "Central-Lake", "Central", "Jarvis", "Jarvis", "Roosevelt/State", "Roosevelt", "Western-Congress", "Western", "Polk", "Polk", "Cicero-Congress", "Cicero", "Kedzie-Lake", "Kedzie", "Kedzie-Midway", "Kedzie", "Diversey", "Diversey", "Main", "Main", "Thorndale", "Thorndale", "Fullerton", "Fullerton", "Dempster", "Dempster", "Chicago/Franklin", "Chicago", "Francisco", "Francisco", "Paulina", "Paulina", "Montrose-Ravenswood", "Montrose", "State/Lake", "State/Lake", "Lake/State", "Lake", "Austin-Lake", "Austin", "Clinton-Lake", "Clinton", "Chicago/Milwaukee", "Chicago", "California/Milwaukee", "California", "Montrose-O'Hare", "Montrose", "87th", "87th", "Sox-35th-Dan Ryan", "Sox-35th", "King Drive", "King Drive", "Ashland/63rd", "Ashland/63rd", "Washington/Wabash", "Washington/Wabash", "Roosevelt/Wabash", "Roosevelt", "Lawrence", "Lawrence", "North/Clybourn", "North/Clybourn", "Noyes", "Noyes", "Morse", "Morse", "Grand/State", "Grand", "Rockwell", "Rockwell", "Oak Park-Congress", "Oak Park", "Pulaski-Midway", "Pulaski", "Forest Park", "Forest Park", "Harlem-O'Hare", "Harlem", "California-Lake", "California", "Addison-O'Hare", "Addison", "Western-Midway", "Western", "California-Douglas", "California", "54th/Cermak", "54th/Cermak", "Clinton-Congress", "Clinton", "Wilson", "Wilson", "Central-Evanston", "Central", "Foster", "Foster", "Sheridan", "Sheridan", "Clark/Lake", "Clark/Lake", "Clark/Division", "Clark/Division", "Linden", "Linden", "Merchandise Mart", "Merchandise Mart", "Southport", "Southport", "Jackson/State", "Jackson", "Rosemont", "Rosemont", "Division/Milwaukee", "Division", "63rd-Dan Ryan", "63rd", "Indiana", "Indiana", "Cicero-Lake", "Cicero", "Quincy/Wells", "Quincy", "Argyle", "Argyle", "Irving Park-Ravenswood", "Irving Park", "Racine", "Racine", "Library", "Harold Washington Library", "69th", "69th", "Midway Airport", "Midway", "Halsted-Midway", "Halsted", "Damen", "Damen", "Central Park", "Central Park", "Pulaski-Douglas", "Pulaski", "Kostner", "Kostner", "Cicero-Douglas", "Cicero", "Cermak-Chinatown", "Cermak-Chinatown", "Oakton-Skokie", "Oakton-Skokie", "Morgan", "Morgan", "Cermak-McCormick Place", "Cermak-McCormick Place"); 
+          
+          var returnValue = stationNameCrosswalk[$feature.LONGNAME];
+          return returnValue;
+          
+        </script>
+        <script>
+          
+            // CONSTANTS
+            var RAIL = "CTA_RailLines_Dissolve";
+            var STATION_POINT = "CTA_RailStations_wRidership";
+            var STATION_POLYGON_SINGLE = "CTA_RailStations_Single_Polygon_Final";
+            var STATION_POLYGON_MULTIPLE = "CTA_RailStations_Multiple_Polygon_Final";
+            
+            var DEFAULT_STATION_SYMBOL_SMALL_SCALE = {
+              type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+              style: "circle",
+              color: "white",
+              size: "8px",  // pixels
+              outline: {  // autocasts as new SimpleLineSymbol()
+                color: [0, 0, 0],
+                width: 1  // points
+              }
+            };
+          
+            var DEFAULT_STATION_RENDERER_SMALL_SCALE = {
+              type: "simple",
+              symbol: DEFAULT_STATION_SYMBOL_SMALL_SCALE
+            }
+            
+            
+            
+            // GLOBAL VARIABLES
+            var showStationsByRidership = false;
+          
+            var stationLabelClass = {
+                // autocasts as new LabelClass()
+                symbol: {
+                  type: "text",  // autocasts as new TextSymbol()
+                  font: {  // autocast as new Font()
+                    size: 10,
+                    weight: "bold"
+                  }
+                },
+                labelPlacement: "above-right",
+                labelExpressionInfo: {
+                  expression: "$feature.LONGNAME"
+                }
+              };
+
+              
+            require([
+                "esri/Map",
+                "esri/WebMap",
+                "esri/views/MapView",
+                "esri/renderers/SimpleRenderer",
+                "esri/renderers/ClassBreaksRenderer",
+                "esri/layers/support/LabelClass",
+                "dojo/dom",  // require dojo/dom for getting the DOM element
+                "dojo/on",   // require dojo/on for listening to events on the DOM
+                "dojo/domReady!"
+            ], function(Map, WebMap, MapView, SimpleRenderer, ClassBreaksRenderer, LabelClass, dom, on) {
+                
+                /************************************************************
+                * Creates a new WebMap instance. A WebMap must reference
+                * a PortalItem ID that represents a WebMap saved to
+                * arcgis.com or an on-premise portal.
+                ************************************************************/
+              var webmap = new WebMap({
+                portalItem: { // autocasts as new PortalItem()
+                  id: "10980b8494464d8d969292cbc7d7aa3b"
+                }
+              });
+              
+              var view = new MapView({
+                map: webmap,
+                container: "viewDiv"
+              });
+            
+              var integerFormat = {
+                digitSeparator: true,  // Uses a comma separator in numbers >999
+                places: 0  // Sets the number of decimal places to 0 and rounds up
+              }
+              
+              var decimalFormat = {
+                digitSeparator: false,
+                places: 2
+              }
+              
+              // Configure expression used to put the user-friendly station names in the pop-up 
+              var arcadeExpressionInfos = [{
+                name: "station-name-crosswalk", 
+                title: "Bah",
+                expression: document.getElementById("station-name-crosswalk").text
+              }];
+              
+              // Configure popups
+              var stationPopupTemplate = {  // autocasts as new PopupTemplate()
+                title: "Station: {expression/station-name-crosswalk}",
+                content: [{
+                  type: "fields",
+                  fieldInfos: [{
+                    fieldName: "AnnualAver",  // The field whose values you want to format
+                    label: "Average Daily Boardings",
+                    visible: true,
+                    format: integerFormat
+                  }, {
+                    fieldName: "Weekday",  // The field whose values you want to format
+                    label: "Weekday",
+                    visible: true,
+                    format: integerFormat
+                  }, {
+                    fieldName: "Saturday",  // The field whose values you want to format
+                    label: "Saturday",
+                    visible: true,
+                    format: integerFormat
+                  }, {
+                    fieldName: "Sunday",  // The field whose values you want to format
+                    label: "Sunday",
+                    visible: true,
+                    format: integerFormat
+                  }, {
+                    fieldName: "DifWD_Disp",  // The field whose values you want to format
+                    label: "Weekday (Compared to  Avg)",
+                    visible: true,
+                    format: decimalFormat
+                  }, {
+                    fieldName: "DifSa_Disp",  // The field whose values you want to format
+                    label: "Saturday (Compared to Avg)",
+                    visible: true,
+                    format: decimalFormat
+                  }, {
+                    fieldName: "DifSu_Disp",  // The field whose values you want to format
+                    label: "Sunday (Compared to  Avg)",
+                    visible: true,
+                    format: decimalFormat
+                  }]
+                }],
+                expressionInfos: arcadeExpressionInfos
+              };
+              
+              var railLinePopupTemplate = {
+                title: "{Color} Line"
+              }
+
+              var stationClassBreaksRenderer = new ClassBreaksRenderer({
+                field: "AnnualAver"
+              });
+              configureStationClassBreaksRenderer(stationClassBreaksRenderer);
+              
+              var stationsSymbologyToggle = document.getElementById("symbologToggleCheckbox");
+              
+              // Set popup templates
+              view.when(function() {
+                webmap.layers.forEach(function(layer) {
+                  if (layer.title === STATION_POINT || layer.title === STATION_POLYGON_SINGLE || layer.title === STATION_POLYGON_MULTIPLE) {
+                    layer.popupTemplate = stationPopupTemplate;
+                    layer.labelingInfo = [stationLabelClass];
+                    layer.labelsVisible = true;
+                    console.log(layer)
+                  } else if (layer.title === RAIL) {
+                    layer.popupTemplate = railLinePopupTemplate;
+                  }
+                  
+                  if (layer.title === STATION_POINT) {
+                    stationsSymbologyToggle.addEventListener("change", function () {
+                      
+                      if (stationsSymbologyToggle.checked) {
+                        showStationsByRidership = true;
+                        layer.visible = true;
+                        layer.renderer = stationClassBreaksRenderer;
+                      } else {
+                        showStationsByRidership = false;
+                        layer.visible = false;
+                      }
+                      
+                      setDefaultStationSymbology(webmap, view.scale);
+                      
+                    });
+                  }
+                  layer.labelsVisible = true;
+                  
+                })
+              });
+              
+              view.watch("scale", function(newValue){
+                console.log(newValue)
+                setRailLinesSymbology(webmap, newValue);
+                setDefaultStationSymbology(webmap, newValue);
+              });
+              
+              
+              
+              
+              // set Station symbology (class breaks)
+              // Set station symbology
+              var stationPoints = webmap.layers.find(function(layer) {
+                return layer.title === STATION_POINT;
+              });
+
+              
+              function configureStationClassBreaksRenderer(stationClassBreaksRenderer) {
+                
+                var symbolType = "simple-marker";
+                var symbolStyle = "circle";
+                var fillColor = [255, 255, 255, 0.75];
+                var outlineColor = "black";
+                var outlineWidth = 1;
+                
+                stationClassBreaksRenderer.addClassBreakInfo({
+                  minValue: 0,
+                  maxValue: 999.999,
+                  symbol: {
+                    type: symbolType,  // autocasts as new SimpleMarkerSymbol()
+                    style: symbolStyle,
+                    color: fillColor,
+                    size: "4px",  // pixels
+                    outline: {  
+                      color: outlineColor,
+                      width: outlineWidth
+                    }
+                  }
+                });
+
+                stationClassBreaksRenderer.addClassBreakInfo({
+                  minValue: 1000,
+                  maxValue: 2499.999,
+                  symbol: {
+                    type: symbolType,  // autocasts as new SimpleMarkerSymbol()
+                    style: symbolStyle,
+                    color: fillColor,
+                    size: "8px",  // pixels
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: outlineColor,
+                      width: outlineWidth
+                    }
+                  }
+                });
+
+                stationClassBreaksRenderer.addClassBreakInfo({
+                  minValue: 2500,
+                  maxValue: 4999.999,
+                  symbol: {
+                    type: symbolType,  // autocasts as new SimpleMarkerSymbol()
+                    style: symbolStyle,
+                    color: fillColor,
+                    size: "12px",  // pixels
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: outlineColor,
+                      width: outlineWidth
+                    }
+                  }
+                });
+
+                stationClassBreaksRenderer.addClassBreakInfo({
+                  minValue: 5000,
+                  maxValue: 9999.999,
+                  symbol: {
+                    type: symbolType,  // autocasts as new SimpleMarkerSymbol()
+                    style: symbolStyle,
+                    color: fillColor,
+                    size: "18px",  // pixels
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: outlineColor,
+                      width: outlineWidth
+                    }
+                  }
+                });
+
+                stationClassBreaksRenderer.addClassBreakInfo({
+                  minValue: 10000,
+                  maxValue: 100000,
+                  symbol: {
+                    type: symbolType,  // autocasts as new SimpleMarkerSymbol()
+                    style: symbolStyle,
+                    color: fillColor,
+                    size: "28px",  // pixels
+                    outline: {  // autocasts as new SimpleLineSymbol()
+                      color: outlineColor,
+                      width: outlineWidth
+                    }
+                  }
+                });
+
+                return stationClassBreaksRenderer;
+              }
+              
+            });
+//            view.on("layerview-create", function(event) {
+//            });
+          
+          function setRailLinesSymbology(webmap, currentScale) {
+            
+            // Set rail lines symbology
+            var railLines = webmap.layers.find(function(layer){
+              return layer.title === RAIL;
+            });
+            
+            console.log(railLines)
+            console.log(webmap.layers)
+
+            if (currentScale <= 30000) {
+              railLines.renderer = configureRailLinesRenderer(4, "large")
+            } else if (currentScale < 140000) {
+              railLines.renderer = configureRailLinesRenderer(2, "large")
+            } else {
+              railLines.renderer = configureRailLinesRenderer(1.5, "large")
+            }
+          }
+          
+          function setDefaultStationSymbology(webmap, currentScale) {
+            
+            var stationPoints = webmap.layers.find(function(layer) {
+              return layer.title === STATION_POINT;
+            });
+
+            var stationPolygonsSingle = webmap.layers.find(function(layer) {
+              return layer.title === STATION_POLYGON_SINGLE;
+            });
+
+            var stationPolygonsMultiple = webmap.layers.find(function(layer) {
+              return layer.title === STATION_POLYGON_MULTIPLE;
+            });
+            
+            if (showStationsByRidership) {
+              stationPolygonsMultiple.visible = false;
+              stationPolygonsSingle.visible = false;
+            } else {
+              stationPolygonsMultiple.visible = currentScale > 70000 ? false : true;
+              stationPolygonsSingle.visible = currentScale > 10000 ? false : true;
+              
+              stationPoints.renderer = DEFAULT_STATION_RENDERER_SMALL_SCALE;
+              if (currentScale <= 10000) {
+                stationPoints.visible = false;
+                stationLabelClass.where = null;
+                stationPoints.labelingInfo = [stationLabelClass];
+              } else if (currentScale <= 70000) {
+                stationPoints.visible = true;
+                stationPoints.definitionExpression = "Transfer = 'no'";
+                stationLabelClass.where = null;
+                stationPoints.labelingInfo = [stationLabelClass];
+              } else {
+                stationPoints.visible = true;
+                stationPoints.definitionExpression = null;
+                stationLabelClass.where = "AnnualAver > 5000";
+                stationPoints.labelingInfo = [stationLabelClass];
+              }
+            }
+          }
+              
+          function configureRailLinesRenderer(lineWidth, scaleCategory) {
+                  
+            var scaleCategoryText = scaleCategory === "small" ? ", small" : ", large";
+
+            // Configuration symbolization for each color
+            var blue = {type: "simple-line", color: "blue", width: lineWidth, style: "solid"};
+            var red = {type: "simple-line", color: "red", width: lineWidth, style: "solid"};
+            var green = {type: "simple-line", color: "#00b33c", width: lineWidth, style: "solid"};
+            var orange = {type: "simple-line", color: "#ff8c1a", width: lineWidth, style: "solid"};
+            var brown = {type: "simple-line", color: "#996633", width: lineWidth, style: "solid"};
+            var pink = {type: "simple-line", color: "#ff33cc", width: lineWidth, style: "solid"};
+            var purple = {type: "simple-line", color: "#7a00cc", width: lineWidth, style: "solid"};
+            var yellow = {type: "simple-line", color: "yellow", width: lineWidth, style: "solid"};
+            var black = {type: "simple-line", color: "black", width: lineWidth, style: "solid"};
+
+            var hideLine = {type: "simple-line", color: "purple", width: 0, style: "solid"};
+
+            var returnRendererConfiguration = {
+              type: "unique-value",
+              field: "Color",
+              field2: "Scale",
+              fieldDelimiter: ", ",
+              defaultSymbol: hideLine,
+              uniqueValueInfos: [
+                {value: "Red" + scaleCategoryText, symbol: red, label: "Red Line"}, 
+                {value: "Blue" + scaleCategoryText, symbol: blue, label: "Blue Line"},
+                {value: "Green" + scaleCategoryText, symbol: green, label: "Green Line"},
+                {value: "Orange" + scaleCategoryText, symbol: orange, label: "Orange Line"},
+                {value: "Pink" + scaleCategoryText, symbol: pink, label: "Pink Line"},
+                {value: "Brown" + scaleCategoryText, symbol: brown, label: "Brown Line"},
+                {value: "Purple" + scaleCategoryText, symbol: purple, label: "Purple Line"},
+                {value: "Yellow" + scaleCategoryText, symbol: yellow, label: "Yellow Line"},
+                {value: "Black" + scaleCategoryText, symbol: black, label: "Multiple Lines"},
+                {value: "Gray" + scaleCategoryText, symbol: black, label: "Multiple Lines"},
+
+                {value: "Red, all", symbol: red, label: "Red Line"}, 
+                {value: "Blue, all", symbol: blue, label: "Blue Line"},
+                {value: "Green, all", symbol: green, label: "Green Line"},
+                {value: "Orange, all", symbol: orange, label: "Orange Line"},
+                {value: "Pink, all", symbol: pink, label: "Pink Line"},
+                {value: "Brown, all", symbol: brown, label: "Brown Line"},
+                {value: "Purple, all", symbol: purple, label: "Purple Line"},
+                {value: "Yellow, all", symbol: yellow, label: "Yellow Line"},
+                {value: "Black, all", symbol: black, label: "Multiple Lines"},
+                {value: "Gray, all", symbol: black, label: "Multiple Lines"}
+              ] 
+            }
+            return returnRendererConfiguration;
+          }
+
+        </script>
+    </head>
+    <body>
+        <div id="viewDiv">
+            <span id="layerToggle">
+            <input type="checkbox" id="symbologToggleCheckbox" unchecked> Show Station Points by Ridership
+            </span>
+        </div>
+        
+    </body>
+</html>
