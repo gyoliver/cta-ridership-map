@@ -26,16 +26,6 @@ var TRANSPARENT_STATION_SYMBOL =  {
   }
 }
 
-var DEFAULT_STATION_RENDERER_SMALL_SCALE = {
-  type: "simple",
-  symbol: DEFAULT_STATION_SYMBOL_SMALL_SCALE
-}
-
-var TRANSPARENT_STATION_RENDERER = {
-  type: "simple",
-  symbol: TRANSPARENT_STATION_SYMBOL
-}
-
 // GLOBAL VARIABLES
 var showStationsByRidership = false;
 
@@ -49,7 +39,6 @@ var stationLabelClass = {
     type: "text",  // autocasts as new TextSymbol()
     font: {  // autocast as new Font()
       size: 10,
-      family: "Noto Sans",
       weight: "bold"
     }
   }
@@ -157,14 +146,18 @@ require([
   
   var stationsSymbologyToggle = document.getElementById("symbologToggleCheckbox");
   
-  // Set popup templates and labels
   view.when(function() {
+    
+    // When view ready, iterate through layers and configure.
     webmap.layers.forEach(function(layer) {
+      
+      // Set popup templates and labels
       if (layer.title === STATION_POINT || layer.title === STATION_POLYGON_SINGLE || layer.title === STATION_POLYGON_MULTIPLE) {
         layer.popupTemplate = stationPopupTemplate;
       } else if (layer.title === RAIL) {
         layer.popupTemplate = railLinePopupTemplate;
       }
+      
       
       if (layer.title === STATION_POINT) {
         stationsSymbologyToggle.addEventListener("change", function () {
@@ -183,12 +176,6 @@ require([
           
         });
       }
-      layer.labelsVisible = true;
-      
-      if (layer.title === STATION_POINT) {
-        console.log(layer);
-      }
-      
     })
   });
   
@@ -355,15 +342,32 @@ function setDefaultStationSymbology(webmap, currentScale) {
     // Set the renderer/labeling info after configuration
     stationPoints.renderer = configureStationPointsRenderer(currentScale);
     stationPoints.labelingInfo = [stationLabelClass];
-    console.log(stationPoints.labelingInfo)
-    console.log(stationPoints);
   }
 }
   
 function configureStationPointsRenderer(currentScale) {
 
-  var opaquePoints = {type: "simple-marker", style: "circle", color: "white", size: "8px", outline: {color: "black", width: 1}};
-  var transparentPoints = {type: "simple-marker", style: "circle", color: [0, 0, 0, 0], size: "8px", outline: {color: [0, 0, 0, 0], width: 1}}
+  var opaquePoints = {
+    type: "simple-marker",
+    style: "circle",
+    color: "white",
+    size: "8px",
+    outline: {
+      color: "black",
+      width: 1
+    }
+  };
+  
+  var transparentPoints = {
+    type: "simple-marker",
+    style: "circle",
+    color: [0, 0, 0, 0],
+    size: "8px",
+    outline: {
+     color: [0, 0, 0, 0],
+     width: 1
+    }
+  }
 
   var nonTransferPoints = currentScale > 30000 ? opaquePoints : transparentPoints;
   var transferPoints = currentScale > 70000 ? opaquePoints : transparentPoints;
