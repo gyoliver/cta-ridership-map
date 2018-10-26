@@ -43,6 +43,8 @@ var stationLabelClass = {
     }
   }
 };
+
+var stationClassBreaksRenderer;
   
   
 require([
@@ -139,7 +141,7 @@ require([
     title: "{Color} Line"
   }
 
-  var stationClassBreaksRenderer = new ClassBreaksRenderer({
+  stationClassBreaksRenderer = new ClassBreaksRenderer({
     field: "AnnualAver"
   });
   configureStationClassBreaksRenderer(stationClassBreaksRenderer);
@@ -158,20 +160,13 @@ require([
         layer.popupTemplate = railLinePopupTemplate;
       }
       
-      
       if (layer.title === STATION_POINT) {
+        
+        layer.labelingInfo = [stationLabelClass];
+
         stationsSymbologyToggle.addEventListener("change", function () {
           
-          if (stationsSymbologyToggle.checked) {
-            showStationsByRidership = true;
-            layer.visible = true;
-            layer.renderer = stationClassBreaksRenderer;
-            layer.labelingInfo = [stationLabelClass];
-          } else {
-            showStationsByRidership = false;
-            layer.visible = false;
-          }
-          
+          showStationsByRidership = stationsSymbologyToggle.checked ? true : false; 
           setDefaultStationSymbology(webmap, view.scale);
           
         });
@@ -196,6 +191,8 @@ require([
 
   
   function configureStationClassBreaksRenderer(stationClassBreaksRenderer) {
+    
+    console.log("in configureStation...")
     
     var symbolType = "simple-marker";
     var symbolStyle = "circle";
@@ -303,6 +300,8 @@ function setRailLinesSymbology(webmap, currentScale) {
 
 function setDefaultStationSymbology(webmap, currentScale) {
 
+  console.log('in setDefaultSta...')
+  // Get references to layers
   var stationPoints = webmap.layers.find(function(layer) {
     return layer.title === STATION_POINT;
   });
@@ -315,9 +314,19 @@ function setDefaultStationSymbology(webmap, currentScale) {
     return layer.title === STATION_POLYGON_MULTIPLE;
   });
 
+  stationPoints.labelsVisible = true;
+  stationPolygonsSingle.labelsVisible = false;
+  stationPolygonsMultiple.labelsVisible = false;
+  stationLabelClass.where = currentScale > 70000 ? 'ShowLabels = all' : "OBJECTID > -1";
+  stationPoints.labelingInfo = [stationLabelClass];
+    
   if (showStationsByRidership) {
+    
     stationPolygonsMultiple.visible = false;
     stationPolygonsSingle.visible = false;
+    stationPoints.renderer = stationClassBreaksRenderer;
+    stationPoints.visible = true;
+
   } else {
 
     // Configure visibility of layers/labels
@@ -333,15 +342,8 @@ function setDefaultStationSymbology(webmap, currentScale) {
     stationPolygonsSingle.visible = currentScale > 30000 ? false : true;
     stationPolygonsMultiple.visible = currentScale > 70000 ? false : true;
 
-    stationPoints.labelsVisible = true;
-    stationPolygonsSingle.labelsVisible = false;
-    stationPolygonsMultiple.labelsVisible = false;
-
-    stationLabelClass.where = currentScale > 70000 ? 'ShowLabels = all' : "OBJECTID > -1";
-    
     // Set the renderer/labeling info after configuration
     stationPoints.renderer = configureStationPointsRenderer(currentScale);
-    stationPoints.labelingInfo = [stationLabelClass];
   }
 }
   
